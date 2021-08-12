@@ -2,8 +2,8 @@ pipeline {
   agent {
     docker {
       image "python:latest"
+      label "first-vm"
     }
-    label "python-docker"
   }
   stages {
     stage("runApp") {
