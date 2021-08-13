@@ -16,7 +16,6 @@ pipeline {
       }
     }
     stage("build") {
-      parallel {
           stage("test") {
             parallel {
               stage("unittest") {
@@ -36,7 +35,6 @@ pipeline {
               sh "python3 main.py"
             }
           }
-       }
      }
   }
   post {
