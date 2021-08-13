@@ -9,6 +9,11 @@ pipeline {
     }
   }
   stages {
+    stage("test") {
+      steps {
+        sh 'python3 -m unittest -s "tests"'
+      }
+    }
     stage("runApp") {
       steps {
         sh "python3 main.py"
