@@ -5,13 +5,14 @@ pipeline {
   agent {
     docker {
       image "python:latest"
+      args "--user root"
       label "first-vm"
     }
   }
   stages {
     stage("setup") {
       steps {
-        sh "pip3 install --user -r Requirements.txt"
+        sh "pip3 install virtualenv && virtualenv test && sh ./test/bin/activate && pip3 install -r Requirements.txt"
       }
     }
     stage("build") {
