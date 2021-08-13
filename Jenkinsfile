@@ -9,6 +9,11 @@ pipeline {
     }
   }
   stages {
+    stage("setup") {
+      steps {
+        sh "pip3 install -r Requirements.txt"
+      }
+    }
     stage("build") {
       parallel {
           stage("test") {
