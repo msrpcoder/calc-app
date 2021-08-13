@@ -26,7 +26,7 @@ pipeline {
               }
               stage("pytest") {
                 steps {
-                  sh "PYTHONPATH=$(pwd):$PYTHONPATH py.test"
+                  sh 'PYTHONPATH=$(pwd):$PYTHONPATH py.test'
                 }
               }
             }
