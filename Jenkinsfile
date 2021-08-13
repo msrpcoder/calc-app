@@ -18,8 +18,17 @@ pipeline {
     stage("build") {
       parallel {
           stage("test") {
-            steps {
-              sh 'python3 -m unittest discover -s "tests"'
+            parallel {
+              stage("unittest") {
+                steps {
+                  sh 'python3 -m unittest discover -s "tests"'
+                }
+              }
+              stage("pytest") {
+                steps {
+                  sh "PYTHONPATH=$(pwd):$PYTHONPATH py.test"
+                }
+              }
             }
           }
           stage("runApp") {
