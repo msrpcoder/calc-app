@@ -11,7 +11,7 @@ pipeline {
   stages {
     stage("setup") {
       steps {
-        sh "pip3 install -r Requirements.txt"
+        sh "pip3 install --user -r Requirements.txt"
       }
     }
     stage("build") {
