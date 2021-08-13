@@ -19,7 +19,7 @@ class Calc(object):
 
 def start_app():
   return {
-    'add': Calc('add', 2, 3).calculate(),
+    'add': Calc('add', 21, 3).calculate(),
     'minus': Calc('minus', 4, 2).calculate()
   }
     
