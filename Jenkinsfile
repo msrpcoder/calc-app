@@ -5,15 +5,51 @@ pipeline {
   agent {
     docker {
       image "python:latest"
+      args "--user root"
       label "first-vm"
     }
   }
   stages {
-    stage("runApp") {
+    stage("setup") {
       steps {
-        sh "python3 main.py"
+        sh "pip3 install virtualenv && virtualenv test && sh ./test/bin/activate && pip3 install -r Requirements.txt"
       }
     }
+    stage("build") {
+      stages {
+          stage("test") {
+            parallel {
+              stage("lint") {
+                steps {
+                  sh "pylint main.py tests"
+                }
+              }
+              stage("unittest") {
+                steps {
+                  sh 'python3 -m unittest discover -s "tests"'
+                }
+              }
+              stage("pytest") {
+                steps {
+                  sh 'PYTHONPATH=$(pwd):$PYTHONPATH py.test --junitxml=test-run-result.xml'
+                }
+                post {
+                  always {
+                    archiveArtifacts artifacts: "test-run-result.xml", allowEmptyArchive: true
+                    junit testResults: "test-run-result.xml", allowEmptyResults: true
+               
+                  }
+                }
+              }
+            }
+          }
+          stage("runApp") {
+            steps {
+              sh "python3 main.py"
+            }
+          }
+        }
+     }
   }
   post {
     always {
