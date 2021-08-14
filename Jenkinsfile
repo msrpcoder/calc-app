@@ -19,6 +19,11 @@ pipeline {
       stages {
           stage("test") {
             parallel {
+              stage("lint") {
+                steps {
+                  sh "pylint main.py tests"
+                }
+              }
               stage("unittest") {
                 steps {
                   sh 'python3 -m unittest discover -s "tests"'
