@@ -28,10 +28,10 @@ pipeline {
                 steps {
                   sh 'PYTHONPATH=$(pwd):$PYTHONPATH py.test --junitxml=test-run-result.xml'
                 }
-              }
-              post {
-                always {
-                  archiveArtifact "test-run-result.xml"
+                post {
+                  always {
+                    archiveArtifact artifacts:"test-run-result.xml", allowEmptyArchive: true
+                  }
                 }
               }
             }
