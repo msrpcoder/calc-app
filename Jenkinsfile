@@ -30,7 +30,9 @@ pipeline {
                 }
                 post {
                   always {
-                    archiveArtifact artifacts:"test-run-result.xml", allowEmptyArchive: true
+                    archiveArtifacts artifacts: "test-run-result.xml", allowEmptyArchive: true
+                    junit testResults: "test-run-result.xml", allowEmptyResults: true
+               
                   }
                 }
               }
