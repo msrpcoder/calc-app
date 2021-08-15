@@ -1,6 +1,7 @@
 pipeline {
   environment {
     GITHUB_TOKEN = credentials('github-token')
+    DOCKER_HUB_CREDENTIALS = credentials('dockerhub')
   }
   agent {
     docker {
@@ -46,6 +47,27 @@ pipeline {
           stage("runApp") {
             steps {
               sh "python3 main.py"
+            }
+          }
+          stage("buildImage") {
+            stages {
+              stage("build") {
+                steps {
+                  sh "docker build -t calc-app:latest -t calc-app:${BUILD_TAG} ."
+                }
+              }
+              stage("push") {
+                steps {
+                  sh "docker login -u $DOCKER_HUB_CREDENTIALS_USR -p $DOCKER_HUB_CREDENTIALS_PSW"
+                  sh "docker push calc-app:${BUILD_TAG} calc-app:latest"
+                }
+                post {
+                  always {
+                    sh "docker image rm calc-app:${BUILD_TAG} calc-app:latest"
+                    sh "docker logout"
+                  }
+                }
+              }
             }
           }
         }
