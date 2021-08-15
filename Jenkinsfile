@@ -65,19 +65,19 @@ pipeline {
 		stages {
 		  stage("build") {
 			steps {
-			  sh "docker build -t calc-app:latest -t calc-app:${tag} ."
+			  sh "docker build -t mangudocker/calc-app:latest -t mangudocker/calc-app:${tag} ."
 			}
 		  }
 		  stage("push") {
 			steps {
-			  sh "docker login -u $DOCKER_HUB_CREDENTIALS_USR -p $DOCKER_HUB_CREDENTIALS_PSW"
-			  sh "docker push calc-app:${tag}"
-			  sh "docker push calc-app:latest"
+			  sh 'docker login -u $DOCKER_HUB_CREDENTIALS_USR -p $DOCKER_HUB_CREDENTIALS_PSW'
+			  sh "docker push mangudocker/calc-app:${tag}"
+			  sh "docker push mangudocker/calc-app:latest"
 			}
 			post {
 			  always {
-				sh "docker image rm calc-app:${tag}"
-				sh "docker image rm calc-app:latest"
+				sh "docker image rm mangudocker/calc-app:${tag}"
+				sh "docker image rm mangudocker/calc-app:latest"
 				sh "docker logout"
 			  }
 			}
