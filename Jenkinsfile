@@ -7,6 +7,9 @@ pipeline {
   }
   agent any
   stages {
+    stage("updateStatusToPending") {
+      sh 'curl -X POST https://api.github.com/repos/msrpcoder/calc-app/statuses/$GIT_COMMIT?access_token=$GITHUB_TOKEN -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -d \'{"state": "pending", "context": "Jenkins Build", "description": "Project is running.", "target_url": "$env.BUILD_URL"}\''
+    }
     stage("setupAndBuild") {
       agent {
 		docker {
