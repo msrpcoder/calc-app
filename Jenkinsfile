@@ -1,10 +1,18 @@
+def tag = URLDecoder.decode(env.BUILD_TAG).replace('/', '-')
+
 pipeline {
   environment {
     GITHUB_TOKEN = credentials('github-token')
     DOCKER_HUB_CREDENTIALS = credentials('dockerhub')
-  }
-  agent none
+  } <<
+  << << < task / docker
+  agent any
   stages {
+    stage("updateStatusToPending") {
+      steps {
+        sh 'curl -X POST https://api.github.com/repos/msrpcoder/calc-app/statuses/$GIT_COMMIT?access_token=$GITHUB_TOKEN -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" -d \'{"state": "pending", "context": "Jenkins Build", "description": "Project is running.", "target_url": "' + env.BUILD_URL + '"}\''
+      }
+    }
     stage("setupAndBuild") {
       agent {
         docker {
@@ -63,17 +71,19 @@ pipeline {
       stages {
         stage("build") {
           steps {
-            sh "docker build -t calc-app:latest -t calc-app:${BUILD_TAG} ."
+            sh "docker build -t mangudocker/calc-app:latest -t mangudocker/calc-app:${tag} ."
           }
         }
         stage("push") {
           steps {
-            sh "docker login -u $DOCKER_HUB_CREDENTIALS_USR -p $DOCKER_HUB_CREDENTIALS_PSW"
-            sh "docker push calc-app:${BUILD_TAG} calc-app:latest"
+            sh 'docker login -u $DOCKER_HUB_CREDENTIALS_USR -p $DOCKER_HUB_CREDENTIALS_PSW'
+            sh "docker push mangudocker/calc-app:${tag}"
+            sh "docker push mangudocker/calc-app:latest"
           }
           post {
             always {
-              sh "docker image rm calc-app:${BUILD_TAG} calc-app:latest"
+              sh "docker image rm mangudocker/calc-app:${tag}"
+              sh "docker image rm mangudocker/calc-app:latest"
               sh "docker logout"
             }
           }
@@ -83,7 +93,11 @@ pipeline {
   }
   post {
     always {
-      sh 'curl -X POST "https://api.github.com/repos/msrpcoder/calc-app/statuses/$GIT_COMMIT?access_token=$GITHUB_TOKEN" -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN"  -d \'{"state": "' + currentBuild.currentResult.toLowerCase() + '", "target_url": "' + env.BUILD_URL + '"}\''
+      script {
+        def status = currentBuild.currentResult.toLowerCase()
+        status = status == 'aborted' ? 'failure' : status
+        sh 'curl -X POST "https://api.github.com/repos/msrpcoder/calc-app/statuses/$GIT_COMMIT?access_token=$GITHUB_TOKEN" -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN"  -d \'{"state": "' + status + '", "target_url": "' + env.BUILD_URL + '"}\''
+      }
     }
   }
 }
