@@ -50,6 +50,9 @@ pipeline {
             }
           }
           stage("buildImage") {
+            agent {
+              label "first-vm"
+            }
             stages {
               stage("build") {
                 steps {
